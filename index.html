@@ -3,63 +3,2243 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta
+    name="description"
+    content="F1 Champion — 최신 F1 경기 결과와 레이스 일정, 드라이버·컨스트럭터 순위를 확인하세요."
+  >
+
   <meta name="theme-color" content="#101016">
-  <meta name="description" content="F1 Champion — 레이스 일정과 드라이버·컨스트럭터 순위를 확인하세요.">
+
   <title>F1 Champion | F1 대시보드</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="script.js" defer></script>
+
+  <style>
+    :root {
+      --bg: #101016;
+      --panel: #17171f;
+      --panel2: #1d1d27;
+      --text: #ffffff;
+      --muted: #9a9aa7;
+      --line: rgba(255,255,255,.08);
+      --red: #ff3548;
+      --green: #39e58c;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family:
+        Arial,
+        "Noto Sans KR",
+        sans-serif;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* =========================
+       SIDEBAR
+    ========================= */
+
+    .sidebar {
+      width: 240px;
+      min-height: 100vh;
+      background: #0d0d12;
+      border-right: 1px solid var(--line);
+      padding: 28px 18px;
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      margin-bottom: 45px;
+    }
+
+    .brand-mark {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 32px;
+      background: var(--red);
+      border-radius: 7px;
+      font-weight: 900;
+      font-style: italic;
+    }
+
+    .nav-label {
+      color: #666674;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      margin: 0 12px 12px;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 13px 12px;
+      border-radius: 9px;
+      color: #92929e;
+      transition: .2s;
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+      background: #1b1b24;
+      color: white;
+    }
+
+    .nav-link.active {
+      box-shadow: inset 3px 0 0 var(--red);
+    }
+
+    .sidebar-bottom {
+      position: absolute;
+      bottom: 25px;
+      left: 22px;
+      right: 22px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: #aaa;
+      font-size: 12px;
+    }
+
+    .sidebar-bottom strong,
+    .sidebar-bottom small {
+      display: block;
+    }
+
+    .sidebar-bottom small {
+      margin-top: 4px;
+      color: var(--green);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 10px var(--green);
+    }
+
+    /* =========================
+       MAIN
+    ========================= */
+
+    .main-content {
+      width: calc(100% - 240px);
+      margin-left: 240px;
+      padding: 35px;
+      max-width: 1700px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 25px;
+    }
+
+    .eyebrow {
+      color: #777784;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      margin: 0 0 7px;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 0;
+      font-size: 32px;
+    }
+
+    h2 {
+      font-size: 25px;
+      margin-bottom: 0;
+    }
+
+    .refresh-button {
+      border: 1px solid var(--line);
+      background: #1a1a22;
+      color: white;
+      padding: 11px 16px;
+      border-radius: 9px;
+      cursor: pointer;
+    }
+
+    .refresh-button:hover {
+      background: #24242d;
+    }
+
+    /* =========================
+       HERO
+    ========================= */
+
+    .hero-card {
+      min-height: 300px;
+      background:
+        radial-gradient(
+          circle at 80% 50%,
+          rgba(255,53,72,.22),
+          transparent 35%
+        ),
+        linear-gradient(135deg,#1c1c25,#121219);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 40px;
+      display: flex;
+      justify-content: space-between;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .hero-copy {
+      max-width: 650px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 11px;
+      border-radius: 30px;
+      background: rgba(255,255,255,.06);
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      font-weight: 800;
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--red);
+    }
+
+    .hero-card h2 {
+      font-size: clamp(34px,5vw,62px);
+      line-height: 1.05;
+      margin: 25px 0 18px;
+    }
+
+    .hero-card h2 em {
+      color: var(--red);
+      font-style: normal;
+    }
+
+    .hero-card p {
+      color: #a5a5b0;
+    }
+
+    .hero-cta {
+      display: inline-block;
+      margin-top: 10px;
+      font-weight: 700;
+    }
+
+    .hero-art {
+      width: 35%;
+      position: relative;
+    }
+
+    .hero-number {
+      position: absolute;
+      right: 30px;
+      top: 30px;
+      font-size: 150px;
+      font-weight: 900;
+      opacity: .05;
+    }
+
+    .speed-line {
+      position: absolute;
+      height: 2px;
+      background: var(--red);
+      transform: rotate(-15deg);
+      opacity: .5;
+    }
+
+    .line-one {
+      width: 250px;
+      right: 20px;
+      top: 90px;
+    }
+
+    .line-two {
+      width: 190px;
+      right: 50px;
+      top: 130px;
+    }
+
+    .line-three {
+      width: 120px;
+      right: 90px;
+      top: 170px;
+    }
+
+    /* =========================
+       STATS
+    ========================= */
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4,1fr);
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 20px;
+    }
+
+    .stat-top {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .stat-card strong {
+      display: block;
+      font-size: 34px;
+      margin: 14px 0 3px;
+    }
+
+    .stat-card small {
+      color: #777784;
+    }
+
+    /* =========================
+       PANELS
+    ========================= */
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .section-badge {
+      background: rgba(255,255,255,.06);
+      padding: 7px 10px;
+      border-radius: 7px;
+      font-size: 10px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 20px;
+    }
+
+    /* =========================
+       TABLE
+    ========================= */
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      text-align: left;
+      color: #70707c;
+      font-size: 10px;
+      letter-spacing: 1px;
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    td {
+      padding: 14px 10px;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+    }
+
+    /* =========================
+       DRIVERS
+    ========================= */
+
+    .leader-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .leader-row {
+      display: grid;
+      grid-template-columns: 35px 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .rank {
+      font-weight: 900;
+      color: var(--red);
+    }
+
+    .leader-name {
+      font-weight: 700;
+    }
+
+    .leader-team {
+      display: block;
+      color: #777784;
+      font-size: 11px;
+      margin-top: 3px;
+      font-weight: 400;
+    }
+
+    .points {
+      font-weight: 800;
+    }
+
+    .points small {
+      color: #777784;
+      margin-left: 4px;
+    }
+
+    .text-link {
+      display: inline-block;
+      margin-top: 18px;
+      color: #aaa;
+      font-size: 12px;
+    }
+
+    /* =========================
+       TEAMS
+    ========================= */
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(4,1fr);
+      gap: 12px;
+    }
+
+    .team-card {
+      border: 1px solid var(--line);
+      border-top: 3px solid var(--team-color);
+      border-radius: 10px;
+      padding: 15px;
+      background: var(--panel2);
+    }
+
+    .team-top {
+      display: flex;
+      justify-content: space-between;
+      color: #777784;
+      font-size: 10px;
+      margin-bottom: 20px;
+    }
+
+    .team-card strong {
+      display: block;
+      margin-bottom: 15px;
+    }
+
+    .team-score {
+      font-size: 25px;
+      font-weight: 900;
+    }
+
+    .team-score span {
+      font-size: 10px;
+      color: #777784;
+      margin-left: 4px;
+    }
+
+    /* =========================
+       LATEST RESULTS
+    ========================= */
+
+    .latest-weekend-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      margin-bottom: 22px;
+    }
+
+    .latest-weekend-header h2 {
+      margin-top: 5px;
+    }
+
+    .latest-sessions {
+      display: grid;
+      grid-template-columns: repeat(2,minmax(0,1fr));
+      gap: 15px;
+    }
+
+    .latest-session-card {
+      background: var(--panel2);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 17px;
+    }
+
+    .latest-session-card:last-child {
+      grid-column: 1 / -1;
+    }
+
+    .latest-session-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .latest-session-type {
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .5px;
+    }
+
+    .latest-session-header h3 {
+      font-size: 16px;
+      margin: 5px 0 0;
+    }
+
+    .latest-session-date {
+      color: #777784;
+      font-size: 11px;
+    }
+
+    .latest-results-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .latest-result-row {
+      display: grid;
+      grid-template-columns: 30px 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .latest-result-position {
+      font-weight: 900;
+      color: #ddd;
+    }
+
+    .latest-result-driver strong {
+      display: block;
+      font-size: 13px;
+    }
+
+    .latest-result-driver small {
+      display: block;
+      color: #777784;
+      font-size: 10px;
+      margin-top: 2px;
+    }
+
+    .latest-result-number {
+      color: #777784;
+      font-size: 11px;
+    }
+
+    .panel-note {
+      color: #666673;
+      font-size: 10px;
+      margin: 15px 0 0;
+    }
+
+    .loading-cell {
+      color: #777784;
+      text-align: center;
+      padding: 25px;
+      font-size: 13px;
+    }
+
+    footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      color: #555561;
+      font-size: 10px;
+      padding: 20px 0;
+    }
+
+    /* =========================
+       MOBILE
+    ========================= */
+
+    @media (max-width: 1000px) {
+
+      .sidebar {
+        width: 190px;
+      }
+
+      .main-content {
+        width: calc(100% - 190px);
+        margin-left: 190px;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2,1fr);
+      }
+
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .team-grid {
+        grid-template-columns: repeat(2,1fr);
+      }
+    }
+
+    @media (max-width: 700px) {
+
+      .app-shell {
+        display: block;
+      }
+
+      .sidebar {
+        position: relative;
+        width: 100%;
+        min-height: auto;
+        padding: 15px;
+      }
+
+      .brand {
+        margin-bottom: 15px;
+      }
+
+      .nav-links {
+        flex-direction: row;
+        overflow-x: auto;
+      }
+
+      .nav-link {
+        white-space: nowrap;
+      }
+
+      .sidebar-bottom {
+        display: none;
+      }
+
+      .main-content {
+        width: 100%;
+        margin-left: 0;
+        padding: 18px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .hero-card {
+        padding: 25px;
+        min-height: 260px;
+      }
+
+      .hero-art {
+        display: none;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .latest-sessions {
+        grid-template-columns: 1fr;
+      }
+
+      .latest-session-card:last-child {
+        grid-column: auto;
+      }
+
+      .team-grid {
+        grid-template-columns: 1fr;
+      }
+
+      footer {
+        flex-direction: column;
+      }
+    }
+  </style>
 </head>
+
 <body>
-  <div class="app-shell">
-    <aside class="sidebar">
-      <a class="brand" href="#home" aria-label="F1 Champion 홈"><span class="brand-mark">F1</span><span>CHAMPION</span></a>
-      <div class="nav-label">MENU</div>
-      <nav class="nav-links" aria-label="주 메뉴">
-        <a class="nav-link active" href="#home"><span>◈</span> 대시보드</a>
-        <a class="nav-link" href="#schedule"><span>▦</span> 레이스 일정</a>
-        <a class="nav-link" href="#drivers"><span>♙</span> 드라이버 순위</a>
-        <a class="nav-link" href="#teams"><span>▰</span> 팀 순위</a>
-      </nav>
-      <div class="sidebar-bottom"><span class="status-dot"></span><div><strong>F1 데이터</strong><small id="connection-status">연결 확인 중…</small></div></div>
-    </aside>
-    <main class="main-content" id="home">
-      <header class="topbar">
-        <div><p class="eyebrow">RACE CENTER / 2026</p><h1>F1 대시보드</h1></div>
-        <button class="refresh-button" id="refresh-button" type="button">↻ <span>데이터 새로고침</span></button>
-      </header>
-      <section class="hero-card" aria-labelledby="hero-title">
-        <div class="hero-copy">
-          <span class="pill"><span class="live-dot"></span> THE WORLD OF FORMULA 1</span>
-          <h2 id="hero-title">속도의 정점,<br><em>챔피언을 향한 경쟁.</em></h2>
-          <p>이번 시즌 레이스 일정과 드라이버·팀 순위를 한곳에서 확인하세요.</p>
-          <a class="hero-cta" href="#schedule">시즌 일정 보기 <span>↘</span></a>
+
+<div class="app-shell">
+
+  <!-- =========================
+       SIDEBAR
+  ========================== -->
+
+  <aside class="sidebar">
+
+    <a class="brand" href="#home">
+      <span class="brand-mark">F1</span>
+      <span>CHAMPION</span>
+    </a>
+
+    <div class="nav-label">MENU</div>
+
+    <nav class="nav-links">
+
+      <a class="nav-link active" href="#home">
+        <span>◈</span>
+        대시보드
+      </a>
+
+      <a class="nav-link" href="#latest-results-section">
+        <span>🏁</span>
+        최신 결과
+      </a>
+
+      <a class="nav-link" href="#schedule">
+        <span>▦</span>
+        레이스 일정
+      </a>
+
+      <a class="nav-link" href="#drivers">
+        <span>♙</span>
+        드라이버 순위
+      </a>
+
+      <a class="nav-link" href="#teams">
+        <span>▰</span>
+        팀 순위
+      </a>
+
+    </nav>
+
+    <div class="sidebar-bottom">
+
+      <span class="status-dot"></span>
+
+      <div>
+        <strong>F1 데이터</strong>
+        <small id="connection-status">
+          연결 확인 중…
+        </small>
+      </div>
+
+    </div>
+
+  </aside>
+
+
+  <!-- =========================
+       MAIN
+  ========================== -->
+
+  <main class="main-content" id="home">
+
+    <!-- TOP -->
+
+    <header class="topbar">
+
+      <div>
+
+        <p class="eyebrow">
+          RACE CENTER / 2026
+        </p>
+
+        <h1>
+          F1 대시보드
+        </h1>
+
+      </div>
+
+      <button
+        class="refresh-button"
+        id="refresh-button"
+        type="button"
+      >
+        ↻ 데이터 새로고침
+      </button>
+
+    </header>
+
+
+    <!-- HERO -->
+
+    <section class="hero-card">
+
+      <div class="hero-copy">
+
+        <span class="pill">
+          <span class="live-dot"></span>
+          THE WORLD OF FORMULA 1
+        </span>
+
+        <h2>
+          속도의 정점,<br>
+          <em>챔피언을 향한 경쟁.</em>
+        </h2>
+
+        <p>
+          최신 F1 경기 결과와 레이스 일정,
+          드라이버·팀 순위를 한곳에서 확인하세요.
+        </p>
+
+        <a class="hero-cta" href="#latest-results-section">
+          최신 경기 결과 보기 ↓
+        </a>
+
+      </div>
+
+      <div class="hero-art">
+
+        <div class="speed-line line-one"></div>
+        <div class="speed-line line-two"></div>
+        <div class="speed-line line-three"></div>
+
+        <div class="hero-number">
+          01
         </div>
-        <div class="hero-art" aria-hidden="true"><div class="speed-line line-one"></div><div class="speed-line line-two"></div><div class="speed-line line-three"></div><div class="hero-number">01</div><div class="hero-orbit"></div></div>
-      </section>
-      <section class="stats-grid" aria-label="시즌 요약">
-        <article class="stat-card"><div class="stat-top"><span>시즌</span><span class="stat-icon">◷</span></div><strong id="season-value">2026</strong><small>FORMULA 1</small></article>
-        <article class="stat-card"><div class="stat-top"><span>전체 라운드</span><span class="stat-icon">▦</span></div><strong id="rounds-value">—</strong><small>시즌 레이스 일정</small></article>
-        <article class="stat-card"><div class="stat-top"><span>드라이버</span><span class="stat-icon">♙</span></div><strong id="drivers-value">—</strong><small>순위표 등록 인원</small></article>
-        <article class="stat-card"><div class="stat-top"><span>컨스트럭터</span><span class="stat-icon">▰</span></div><strong id="teams-value">—</strong><small>팀 순위표 등록 팀</small></article>
-      </section>
-      <section class="content-grid">
-        <article class="panel schedule-panel" id="schedule">
-          <div class="section-heading"><div><p class="eyebrow">RACE CALENDAR</p><h2>레이스 일정</h2></div><span class="section-badge">2026 SEASON</span></div>
-          <div class="table-wrap"><table><thead><tr><th>ROUND</th><th>그랑프리</th><th>서킷</th><th>날짜</th></tr></thead><tbody id="schedule-body"><tr><td colspan="4" class="loading-cell">일정을 불러오는 중…</td></tr></tbody></table></div>
-          <p class="panel-note">일정 데이터: Jolpica F1 공개 API · 현지 날짜 기준</p>
-        </article>
-        <article class="panel leaders-panel" id="drivers">
-          <div class="section-heading"><div><p class="eyebrow">DRIVER STANDINGS</p><h2>드라이버 순위</h2></div><span class="section-badge">TOP 5</span></div>
-          <div id="drivers-list" class="leader-list"><div class="loading-cell">순위를 불러오는 중…</div></div>
-          <a class="text-link" href="https://www.formula1.com/" target="_blank" rel="noreferrer">F1 공식 사이트 <span>↗</span></a>
-        </article>
-      </section>
-      <section class="panel constructors-panel" id="teams">
-        <div class="section-heading"><div><p class="eyebrow">CONSTRUCTOR STANDINGS</p><h2>컨스트럭터 순위</h2></div><span class="section-badge">TEAM BATTLE</span></div>
-        <div id="teams-list" class="team-grid"><div class="loading-cell">팀 순위를 불러오는 중…</div></div>
-      </section>
-      <footer><span>F1 CHAMPION</span><span>비공식 팬 프로젝트 · F1®과 제휴하지 않습니다.</span></footer>
-    </main>
-  </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- STATS -->
+
+    <section class="stats-grid">
+
+      <article class="stat-card">
+
+        <div class="stat-top">
+          <span>시즌</span>
+          <span>◷</span>
+        </div>
+
+        <strong>2026</strong>
+
+        <small>
+          FORMULA 1
+        </small>
+
+      </article>
+
+
+      <article class="stat-card">
+
+        <div class="stat-top">
+          <span>전체 라운드</span>
+          <span>▦</span>
+        </div>
+
+        <strong id="rounds-value">
+          —
+        </strong>
+
+        <small>
+          시즌 레이스 일정
+        </small>
+
+      </article>
+
+
+      <article class="stat-card">
+
+        <div class="stat-top">
+          <span>드라이버</span>
+          <span>♙</span>
+        </div>
+
+        <strong id="drivers-value">
+          —
+        </strong>
+
+        <small>
+          순위표 등록 인원
+        </small>
+
+      </article>
+
+
+      <article class="stat-card">
+
+        <div class="stat-top">
+          <span>컨스트럭터</span>
+          <span>▰</span>
+        </div>
+
+        <strong id="teams-value">
+          —
+        </strong>
+
+        <small>
+          팀 순위표 등록 팀
+        </small>
+
+      </article>
+
+    </section>
+
+
+    <!-- =========================
+         최신 경기 결과
+    ========================== -->
+
+    <section
+      class="panel"
+      id="latest-results-section"
+    >
+
+      <div id="latest-results">
+
+        <div class="loading-cell">
+          최신 F1 경기 결과를 불러오는 중…
+        </div>
+
+      </div>
+
+      <p class="panel-note">
+        최신 완료 경기의 Practice · Qualifying · Race 결과
+      </p>
+
+    </section>
+
+
+    <!-- =========================
+         일정 + 드라이버
+    ========================== -->
+
+    <section class="content-grid">
+
+
+      <!-- 일정 -->
+
+      <article
+        class="panel"
+        id="schedule"
+      >
+
+        <div class="section-heading">
+
+          <div>
+
+            <p class="eyebrow">
+              RACE CALENDAR
+            </p>
+
+            <h2>
+              레이스 일정
+            </h2>
+
+          </div>
+
+          <span class="section-badge">
+            2026 SEASON
+          </span>
+
+        </div>
+
+
+        <div class="table-wrap">
+
+          <table>
+
+            <thead>
+
+              <tr>
+                <th>ROUND</th>
+                <th>그랑프리</th>
+                <th>서킷</th>
+                <th>날짜</th>
+              </tr>
+
+            </thead>
+
+            <tbody id="schedule-body">
+
+              <tr>
+                <td
+                  colspan="4"
+                  class="loading-cell"
+                >
+                  일정을 불러오는 중…
+                </td>
+              </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+        <p class="panel-note">
+          일정 데이터: Jolpica F1 공개 API
+        </p>
+
+      </article>
+
+
+      <!-- 드라이버 -->
+
+      <article
+        class="panel"
+        id="drivers"
+      >
+
+        <div class="section-heading">
+
+          <div>
+
+            <p class="eyebrow">
+              DRIVER STANDINGS
+            </p>
+
+            <h2>
+              드라이버 순위
+            </h2>
+
+          </div>
+
+          <span class="section-badge">
+            TOP 5
+          </span>
+
+        </div>
+
+
+        <div
+          id="drivers-list"
+          class="leader-list"
+        >
+
+          <div class="loading-cell">
+            순위를 불러오는 중…
+          </div>
+
+        </div>
+
+
+        <a
+          class="text-link"
+          href="https://www.formula1.com/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          F1 공식 사이트 ↗
+        </a>
+
+      </article>
+
+    </section>
+
+
+    <!-- =========================
+         팀 순위
+    ========================== -->
+
+    <section
+      class="panel"
+      id="teams"
+    >
+
+      <div class="section-heading">
+
+        <div>
+
+          <p class="eyebrow">
+            CONSTRUCTOR STANDINGS
+          </p>
+
+          <h2>
+            컨스트럭터 순위
+          </h2>
+
+        </div>
+
+        <span class="section-badge">
+          TEAM BATTLE
+        </span>
+
+      </div>
+
+
+      <div
+        id="teams-list"
+        class="team-grid"
+      >
+
+        <div class="loading-cell">
+          팀 순위를 불러오는 중…
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <footer>
+
+      <span>
+        F1 CHAMPION
+      </span>
+
+      <span>
+        비공식 팬 프로젝트 · F1®과 제휴하지 않습니다.
+      </span>
+
+    </footer>
+
+  </main>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   API
+========================================================= */
+
+const API_BASE =
+  "https://api.jolpi.ca/ergast/f1";
+
+const OPENF1_BASE =
+  "https://api.openf1.org/v1";
+
+const $ =
+  (selector) =>
+    document.querySelector(selector);
+
+
+/* =========================================================
+   팀 색상
+========================================================= */
+
+const teamColors = {
+
+  "McLaren": "#ff8700",
+  "Ferrari": "#e8002d",
+  "Red Bull": "#3671c6",
+  "Mercedes": "#27f4d2",
+  "Aston Martin": "#229971",
+  "Alpine F1 Team": "#ff87bc",
+  "Williams": "#64c4ff",
+  "Racing Bulls": "#6692ff",
+  "Haas F1 Team": "#b6babd",
+  "Kick Sauber": "#52e252",
+  "Audi": "#bb0000",
+  "Cadillac": "#d6d6d6"
+
+};
+
+
+/* =========================================================
+   보안
+========================================================= */
+
+function escapeHtml(value) {
+
+  return String(value ?? "")
+    .replace(/[&<>"']/g, (char) => ({
+
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+
+    })[char]);
+
+}
+
+
+/* =========================================================
+   날짜
+========================================================= */
+
+function formatDate(dateString) {
+
+  if (!dateString) {
+    return "날짜 미정";
+  }
+
+  const date =
+    new Date(dateString + "T12:00:00Z");
+
+  if (Number.isNaN(date.getTime())) {
+    return dateString;
+  }
+
+  return new Intl.DateTimeFormat(
+    "ko-KR",
+    {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      timeZone: "UTC"
+    }
+  ).format(date);
+
+}
+
+
+/* =========================================================
+   API 요청
+========================================================= */
+
+async function getJson(path) {
+
+  const response =
+    await fetch(
+      API_BASE + path,
+      {
+        headers: {
+          Accept: "application/json"
+        }
+      }
+    );
+
+  if (!response.ok) {
+    throw new Error(
+      "Jolpica API 오류 " +
+      response.status
+    );
+  }
+
+  return response.json();
+
+}
+
+
+async function getOpenF1(path) {
+
+  const response =
+    await fetch(
+      OPENF1_BASE + path,
+      {
+        headers: {
+          Accept: "application/json"
+        }
+      }
+    );
+
+  if (!response.ok) {
+    throw new Error(
+      "OpenF1 API 오류 " +
+      response.status
+    );
+  }
+
+  return response.json();
+
+}
+
+
+/* =========================================================
+   상태
+========================================================= */
+
+function setStatus(
+  message,
+  good = true
+) {
+
+  const status =
+    $("#connection-status");
+
+  if (!status) return;
+
+  status.textContent =
+    message;
+
+  status.style.color =
+    good
+      ? "var(--green)"
+      : "#ff7c88";
+
+}
+
+
+/* =========================================================
+   일정
+========================================================= */
+
+function renderSchedule(races) {
+
+  const body =
+    $("#schedule-body");
+
+  if (!body) return;
+
+  if (!races.length) {
+
+    body.innerHTML =
+      '<tr><td colspan="4" class="loading-cell">표시할 일정이 없습니다.</td></tr>';
+
+    return;
+
+  }
+
+  body.innerHTML =
+    races.map(
+      (race) => `
+
+        <tr>
+
+          <td>
+            ${escapeHtml(race.round)}
+          </td>
+
+          <td>
+            ${escapeHtml(race.raceName)}
+          </td>
+
+          <td>
+            ${escapeHtml(
+              race.Circuit?.circuitName ||
+              "서킷 정보 없음"
+            )}
+          </td>
+
+          <td>
+            ${escapeHtml(
+              formatDate(race.date)
+            )}
+          </td>
+
+        </tr>
+
+      `
+    ).join("");
+
+}
+
+
+/* =========================================================
+   드라이버
+========================================================= */
+
+function renderDrivers(drivers) {
+
+  const list =
+    $("#drivers-list");
+
+  if (!list) return;
+
+  if (!drivers.length) {
+
+    list.innerHTML =
+      '<div class="loading-cell">드라이버 순위가 없습니다.</div>';
+
+    return;
+
+  }
+
+  list.innerHTML =
+    drivers
+      .slice(0,5)
+      .map((item) => {
+
+        const driver =
+          item.Driver || {};
+
+        const name =
+          [
+            driver.givenName,
+            driver.familyName
+          ]
+          .filter(Boolean)
+          .join(" ");
+
+        const team =
+          item.Constructors?.[0]?.name ||
+          "팀 정보 없음";
+
+        return `
+
+          <div class="leader-row">
+
+            <span class="rank">
+              ${escapeHtml(
+                item.position || "—"
+              )}
+            </span>
+
+            <div class="leader-name">
+
+              ${escapeHtml(name)}
+
+              <span class="leader-team">
+                ${escapeHtml(team)}
+              </span>
+
+            </div>
+
+            <span class="points">
+
+              ${escapeHtml(
+                item.points || "0"
+              )}
+
+              <small>
+                PTS
+              </small>
+
+            </span>
+
+          </div>
+
+        `;
+
+      })
+      .join("");
+
+}
+
+
+/* =========================================================
+   팀
+========================================================= */
+
+function renderTeams(teams) {
+
+  const list =
+    $("#teams-list");
+
+  if (!list) return;
+
+  if (!teams.length) {
+
+    list.innerHTML =
+      '<div class="loading-cell">팀 순위가 없습니다.</div>';
+
+    return;
+
+  }
+
+  list.innerHTML =
+    teams
+      .map((item) => {
+
+        const name =
+          item.Constructor?.name ||
+          "팀";
+
+        const color =
+          teamColors[name] ||
+          "#ff3548";
+
+        return `
+
+          <article
+            class="team-card"
+            style="--team-color:${color}"
+          >
+
+            <div class="team-top">
+
+              <span>
+                POS ${escapeHtml(
+                  item.position || "—"
+                )}
+              </span>
+
+              <span>
+                2026
+              </span>
+
+            </div>
+
+            <strong>
+              ${escapeHtml(name)}
+            </strong>
+
+            <div class="team-score">
+
+              ${escapeHtml(
+                item.points || "0"
+              )}
+
+              <span>
+                PTS
+              </span>
+
+            </div>
+
+          </article>
+
+        `;
+
+      })
+      .join("");
+
+}
+
+
+/* =========================================================
+   최신 F1 세션
+========================================================= */
+
+async function getLatestSessions() {
+
+  const sessions =
+    await getOpenF1(
+      "/sessions?year=2026"
+    );
+
+  const now =
+    new Date();
+
+  return sessions
+
+    .filter(
+      (session) =>
+        session.date_end &&
+        new Date(session.date_end) <= now
+    )
+
+    .sort(
+      (a,b) =>
+        new Date(b.date_end) -
+        new Date(a.date_end)
+    );
+
+}
+
+
+/* =========================================================
+   세션 결과
+========================================================= */
+
+async function getSessionResults(
+  sessionKey
+) {
+
+  return getOpenF1(
+    "/session_result?session_key=" +
+    encodeURIComponent(sessionKey)
+  );
+
+}
+
+
+/* =========================================================
+   세션 이름
+========================================================= */
+
+function sessionLabel(name) {
+
+  if (name === "Race")
+    return "🏁 RACE";
+
+  if (name === "Qualifying")
+    return "🟣 QUALIFYING";
+
+  if (name === "Practice 1")
+    return "🔵 PRACTICE 1";
+
+  if (name === "Practice 2")
+    return "🔵 PRACTICE 2";
+
+  if (name === "Practice 3")
+    return "🔵 PRACTICE 3";
+
+  return name;
+
+}
+
+
+/* =========================================================
+   최신 세션 표시
+========================================================= */
+
+function renderLatestSession(
+  session,
+  results
+) {
+
+  const rows =
+    results
+      .filter(
+        (item) =>
+          item.position !== null &&
+          item.position !== undefined
+      )
+      .sort(
+        (a,b) =>
+          Number(a.position) -
+          Number(b.position)
+      )
+      .slice(0,10);
+
+
+  const date =
+    new Intl.DateTimeFormat(
+      "ko-KR",
+      {
+        month: "short",
+        day: "numeric"
+      }
+    )
+    .format(
+      new Date(session.date_end)
+    );
+
+
+  return `
+
+    <article
+      class="latest-session-card"
+    >
+
+      <div class="latest-session-header">
+
+        <div>
+
+          <span class="latest-session-type">
+
+            ${escapeHtml(
+              sessionLabel(
+                session.session_name
+              )
+            )}
+
+          </span>
+
+          <h3>
+            ${escapeHtml(
+              session.session_name
+            )}
+          </h3>
+
+        </div>
+
+        <span class="latest-session-date">
+          ${escapeHtml(date)}
+        </span>
+
+      </div>
+
+
+      <div class="latest-results-list">
+
+        ${
+          rows.length
+
+          ?
+
+          rows.map(
+            (item) => `
+
+              <div
+                class="latest-result-row"
+              >
+
+                <span
+                  class="latest-result-position"
+                >
+                  ${escapeHtml(
+                    item.position
+                  )}
+                </span>
+
+                <div
+                  class="latest-result-driver"
+                >
+
+                  <strong>
+
+                    ${escapeHtml(
+                      [
+                        item.first_name,
+                        item.last_name
+                      ]
+                      .filter(Boolean)
+                      .join(" ") ||
+                      "드라이버"
+                    )}
+
+                  </strong>
+
+                  <small>
+                    ${escapeHtml(
+                      item.team_name ||
+                      ""
+                    )}
+                  </small>
+
+                </div>
+
+                <span
+                  class="latest-result-number"
+                >
+                  ${escapeHtml(
+                    item.driver_number ||
+                    ""
+                  )}
+                </span>
+
+              </div>
+
+            `
+          ).join("")
+
+          :
+
+          `
+            <div class="loading-cell">
+              결과가 없습니다.
+            </div>
+          `
+        }
+
+      </div>
+
+    </article>
+
+  `;
+
+}
+
+
+/* =========================================================
+   최신 경기 주말
+========================================================= */
+
+async function loadLatestRaceWeekend() {
+
+  const container =
+    $("#latest-results");
+
+  if (!container) return;
+
+
+  container.innerHTML = `
+
+    <div class="loading-cell">
+      최신 F1 경기 결과를 불러오는 중…
+    </div>
+
+  `;
+
+
+  try {
+
+    const sessions =
+      await getLatestSessions();
+
+
+    /*
+      가장 최근 완료된 Race
+    */
+
+    const latestRace =
+      sessions.find(
+        (session) =>
+          session.session_name === "Race"
+      );
+
+
+    if (!latestRace) {
+
+      container.innerHTML = `
+
+        <div class="loading-cell">
+          아직 완료된 레이스 결과가 없습니다.
+        </div>
+
+      `;
+
+      return;
+
+    }
+
+
+    /*
+      같은 그랑프리의 세션만 선택
+    */
+
+    const weekendSessions =
+      sessions
+
+        .filter(
+          (session) =>
+            session.meeting_key ===
+            latestRace.meeting_key
+        )
+
+        .filter(
+          (session) =>
+            [
+              "Practice 1",
+              "Practice 2",
+              "Practice 3",
+              "Qualifying",
+              "Race"
+            ]
+            .includes(
+              session.session_name
+            )
+        )
+
+        .sort(
+          (a,b) =>
+            new Date(a.date_start) -
+            new Date(b.date_start)
+        );
+
+
+    const meetingName =
+      latestRace.meeting_name ||
+      "Latest F1 Grand Prix";
+
+
+    let html = `
+
+      <div
+        class="latest-weekend-header"
+      >
+
+        <div>
+
+          <p class="eyebrow">
+            LATEST RACE WEEKEND
+          </p>
+
+          <h2>
+            ${escapeHtml(
+              meetingName
+            )}
+          </h2>
+
+        </div>
+
+        <span class="section-badge">
+          최신 완료 경기
+        </span>
+
+      </div>
+
+
+      <div class="latest-sessions">
+
+    `;
+
+
+    /*
+      Practice → Qualifying → Race
+    */
+
+    for (
+      const session
+      of weekendSessions
+    ) {
+
+      try {
+
+        const results =
+          await getSessionResults(
+            session.session_key
+          );
+
+
+        html +=
+          renderLatestSession(
+            session,
+            Array.isArray(results)
+              ? results
+              : []
+          );
+
+
+      } catch (error) {
+
+        console.error(
+          session.session_name,
+          error
+        );
+
+      }
+
+    }
+
+
+    html += `
+      </div>
+    `;
+
+
+    container.innerHTML =
+      html;
+
+
+  } catch (error) {
+
+    console.error(
+      "최신 경기 결과 오류:",
+      error
+    );
+
+
+    container.innerHTML = `
+
+      <div class="loading-cell">
+
+        최신 경기 결과를 불러오지 못했습니다.
+
+        <br><br>
+
+        잠시 후 새로고침해 주세요.
+
+      </div>
+
+    `;
+
+  }
+
+}
+
+
+/* =========================================================
+   대시보드
+========================================================= */
+
+async function loadDashboard() {
+
+  const button =
+    $("#refresh-button");
+
+
+  if (button) {
+
+    button.disabled = true;
+    button.style.opacity = ".65";
+
+  }
+
+
+  setStatus(
+    "데이터 불러오는 중…"
+  );
+
+
+  /*
+    기존 F1 데이터
+  */
+
+  const results =
+    await Promise.allSettled([
+
+      getJson(
+        "/current.json?limit=100"
+      ),
+
+      getJson(
+        "/current/driverStandings.json"
+      ),
+
+      getJson(
+        "/current/constructorStandings.json"
+      )
+
+    ]);
+
+
+  let successCount = 0;
+
+
+  const [
+    scheduleResult,
+    driversResult,
+    teamsResult
+  ] = results;
+
+
+  /* 일정 */
+
+  if (
+    scheduleResult.status ===
+    "fulfilled"
+  ) {
+
+    const races =
+      scheduleResult
+        .value
+        ?.MRData
+        ?.RaceTable
+        ?.Races || [];
+
+
+    renderSchedule(
+      races
+    );
+
+
+    const rounds =
+      $("#rounds-value");
+
+
+    if (rounds) {
+
+      rounds.textContent =
+        races.length || "—";
+
+    }
+
+
+    if (races.length) {
+      successCount++;
+    }
+
+  }
+
+
+  /* 드라이버 */
+
+  if (
+    driversResult.status ===
+    "fulfilled"
+  ) {
+
+    const lists =
+      driversResult
+        .value
+        ?.MRData
+        ?.StandingsTable
+        ?.StandingsLists || [];
+
+
+    const drivers =
+      lists[0]
+        ?.DriverStandings || [];
+
+
+    renderDrivers(
+      drivers
+    );
+
+
+    const driverValue =
+      $("#drivers-value");
+
+
+    if (driverValue) {
+
+      driverValue.textContent =
+        drivers.length || "—";
+
+    }
+
+
+    if (drivers.length) {
+      successCount++;
+    }
+
+  }
+
+
+  /* 팀 */
+
+  if (
+    teamsResult.status ===
+    "fulfilled"
+  ) {
+
+    const lists =
+      teamsResult
+        .value
+        ?.MRData
+        ?.StandingsTable
+        ?.StandingsLists || [];
+
+
+    const teams =
+      lists[0]
+        ?.ConstructorStandings || [];
+
+
+    renderTeams(
+      teams
+    );
+
+
+    const teamValue =
+      $("#teams-value");
+
+
+    if (teamValue) {
+
+      teamValue.textContent =
+        teams.length || "—";
+
+    }
+
+
+    if (teams.length) {
+      successCount++;
+    }
+
+  }
+
+
+  /*
+    최신 경기
+  */
+
+  await loadLatestRaceWeekend();
+
+
+  /*
+    상태
+  */
+
+  if (successCount === 3) {
+
+    setStatus(
+      "API 연결 완료"
+    );
+
+  } else if (successCount > 0) {
+
+    setStatus(
+      "일부 데이터만 연결됨",
+      false
+    );
+
+  } else {
+
+    setStatus(
+      "API 연결 실패",
+      false
+    );
+
+  }
+
+
+  if (button) {
+
+    button.disabled = false;
+    button.style.opacity = "1";
+
+  }
+
+}
+
+
+/* =========================================================
+   새로고침
+========================================================= */
+
+$("#refresh-button")
+  ?.addEventListener(
+    "click",
+    loadDashboard
+  );
+
+
+/* =========================================================
+   메뉴
+========================================================= */
+
+document
+  .querySelectorAll(".nav-link")
+  .forEach(
+    (link) => {
+
+      link.addEventListener(
+        "click",
+        () => {
+
+          document
+            .querySelectorAll(".nav-link")
+            .forEach(
+              (item) =>
+                item.classList.remove(
+                  "active"
+                )
+            );
+
+
+          link.classList.add(
+            "active"
+          );
+
+        }
+      );
+
+    }
+  );
+
+
+/* =========================================================
+   시작
+========================================================= */
+
+loadDashboard();
+
+</script>
+
 </body>
 </html>
